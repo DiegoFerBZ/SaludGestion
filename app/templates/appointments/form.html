@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="panel">
+    <h1>Agendar cita</h1>
+    <form method="post" action="{{ url_for('appointments.create_appointment_view') }}" class="form grid">
+        <label>Paciente
+            <select name="patient_id" required>
+                {% for patient in patients %}
+                    <option value="{{ patient.id }}">{{ patient.full_name }} - {{ patient.document }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>Medico
+            <select name="doctor_id" required>
+                {% for doctor in doctors %}
+                    <option value="{{ doctor.id }}">{{ doctor.full_name }} - {{ doctor.specialty }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>Inicio<input type="datetime-local" name="starts_at" required></label>
+        <button type="submit">Confirmar cita</button>
+    </form>
+</section>
+{% endblock %}

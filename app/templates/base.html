@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SaludGestion</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="{{ url_for('patients.list_patients_view') }}">SaludGestion</a>
+        <nav>
+            {% if session.get("user_id") %}
+                <a href="{{ url_for('patients.list_patients_view') }}">Pacientes</a>
+                <a href="{{ url_for('appointments.list_appointments_view') }}">Citas</a>
+                <a href="{{ url_for('appointments.availability_view') }}">Disponibilidad</a>
+                <a href="{{ url_for('records.list_records_view') }}">Historial</a>
+                <a href="{{ url_for('resources.resources_view') }}">Recursos</a>
+                <a href="{{ url_for('auth.logout_view') }}">Salir</a>
+            {% else %}
+                <a href="{{ url_for('auth.login_view') }}">Login</a>
+                <a href="{{ url_for('auth.register_view') }}">Registro</a>
+            {% endif %}
+        </nav>
+    </header>
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

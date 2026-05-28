@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="page-title">
+    <div>
+        <h1>Pacientes</h1>
+        <p>Registro, busqueda y actualizacion de informacion personal.</p>
+    </div>
+    <a class="button" href="{{ url_for('patients.new_patient_view') }}">Nuevo paciente</a>
+</section>
+
+<form method="get" class="search">
+    <input name="q" value="{{ q }}" placeholder="Buscar por nombre o documento">
+    <button type="submit">Buscar</button>
+</form>
+
+<section class="table-wrap">
+    <table>
+        <thead>
+            <tr><th>Nombre</th><th>Documento</th><th>Email</th><th>Celular</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for patient in patients %}
+            <tr>
+                <td>{{ patient.full_name }}</td>
+                <td>{{ patient.document }}</td>
+                <td>{{ patient.email }}</td>
+                <td>{{ patient.phone }}</td>
+                <td><a href="{{ url_for('patients.edit_patient_view', patient_id=patient.id) }}">Editar</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5">No hay pacientes para mostrar.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="panel">
+    <h1>Algo necesita revision</h1>
+    <p>{{ error.message }}</p>
+    {% if error.details %}
+        <pre>{{ error.details }}</pre>
+    {% endif %}
+    <a class="button" href="javascript:history.back()">Volver</a>
+</section>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="auth">
+    <h1>Registro de usuario</h1>
+    <form method="post" action="{{ url_for('auth.register_submit') }}" class="form grid">
+        <label>Nombre<input name="first_name" required></label>
+        <label>Apellido<input name="last_name" required></label>
+        <label>Usuario<input name="username" required></label>
+        <label>Email<input type="email" name="email" required></label>
+        <label>Documento<input name="document" required></label>
+        <label>Contraseña<input type="password" name="password" required></label>
+        <label>Rol
+            <select name="role" required>
+                <option value="recepcionista">Recepcionista</option>
+                <option value="medico">Medico</option>
+            </select>
+        </label>
+        <label>Especialidad<input name="specialty" placeholder="Solo para medicos"></label>
+        <button type="submit">Crear cuenta</button>
+    </form>
+</section>
+{% endblock %}
