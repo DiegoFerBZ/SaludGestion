@@ -3,26 +3,30 @@
 {% block content %}
 <section class="page-title">
     <div>
+        <p class="page-eyebrow">Agenda por medico</p>
         <h1>Disponibilidad</h1>
         <p>Bloques de 20 minutos por medico, excluyendo almuerzo de 12:00 a 14:00.</p>
     </div>
 </section>
 
-<form method="get" class="search">
+<form method="get" class="filters">
     <select name="doctor_id">
         {% for doctor in doctors %}
             <option value="{{ doctor.id }}" {% if selected_doctor == doctor.id %}selected{% endif %}>{{ doctor.full_name }}</option>
         {% endfor %}
     </select>
     <input type="date" name="date" value="{{ selected_date }}">
-    <button type="submit">Ver</button>
+    <button type="submit">
+        <span class="material-symbols-outlined">calendar_month</span>
+        Ver
+    </button>
 </form>
 
 {% if availability %}
 <section class="slots">
     {% for slot in availability.slots %}
         <span class="slot {{ 'available' if slot.available else 'busy' }}">
-            {{ slot.starts_at[11:16] }}
+            {{ slot.starts_at[11:16] }} - {{ slot.ends_at[11:16] }}
         </span>
     {% endfor %}
 </section>

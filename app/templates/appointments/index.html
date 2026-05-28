@@ -3,47 +3,65 @@
 {% block content %}
 <section class="page-title">
     <div>
-        <h1>Citas</h1>
-        <p>Agenda ordenada por fecha, con cancelacion y filtros por medico.</p>
+        <p class="page-eyebrow">Agenda medica</p>
+        <h1>{{ "Mi agenda" if is_doctor else "Citas" }}</h1>
+        <p>{{ "Consulta de citas asignadas a tu usuario medico." if is_doctor else "Agenda ordenada por fecha, con cancelacion y filtros por medico." }}</p>
     </div>
-    <a class="button" href="{{ url_for('appointments.new_appointment_view') }}">Agendar cita</a>
+    {% if not is_doctor %}
+    <a class="button" href="{{ url_for('appointments.new_appointment_view') }}">
+        <span class="material-symbols-outlined">add</span>
+        Agendar cita
+    </a>
+    {% endif %}
 </section>
 
-<form method="get" class="search">
+{% if not is_doctor %}
+<form method="get" class="filters">
     <select name="doctor_id">
         <option value="">Todos los medicos</option>
         {% for doctor in doctors %}
             <option value="{{ doctor.id }}" {% if request.args.get('doctor_id') == doctor.id|string %}selected{% endif %}>{{ doctor.full_name }}</option>
         {% endfor %}
     </select>
-    <button type="submit">Filtrar</button>
+    <button type="submit">
+        <span class="material-symbols-outlined">filter_list</span>
+        Filtrar
+    </button>
 </form>
+{% endif %}
 
-<section class="table-wrap">
-    <table>
-        <thead>
-            <tr><th>Fecha</th><th>Paciente</th><th>Medico</th><th>Estado</th><th></th></tr>
-        </thead>
-        <tbody>
-            {% for appointment in appointments %}
-            <tr>
-                <td>{{ appointment.starts_at.strftime("%Y-%m-%d %H:%M") }}</td>
-                <td>{{ appointment.patient.full_name }}</td>
-                <td>{{ appointment.doctor.full_name }}</td>
-                <td>{{ appointment.status }}</td>
-                <td>
-                    {% if appointment.status == "programada" %}
-                    <form method="post" action="{{ url_for('appointments.cancel_appointment_view', appointment_id=appointment.id) }}" class="inline">
-                        <input name="reason" placeholder="Motivo">
-                        <button type="submit">Cancelar</button>
-                    </form>
-                    {% endif %}
-                </td>
-            </tr>
-            {% else %}
-            <tr><td colspan="5">No hay citas programadas.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<section class="appointment-list">
+    {% for appointment in appointments %}
+    <article class="appointment-row">
+        <div class="appointment-time">
+            {{ appointment.starts_at.strftime("%H:%M") }}
+            <div class="meta">{{ appointment.starts_at.strftime("%Y-%m-%d") }}</div>
+        </div>
+        <div class="entity">
+            <span class="avatar">{{ appointment.patient.first_name[0] }}{{ appointment.patient.last_name[0] }}</span>
+            <div>
+                <strong>{{ appointment.patient.full_name }}</strong>
+                <span>Dr. {{ appointment.doctor.full_name }} · {{ appointment.doctor.specialty }}</span>
+            </div>
+        </div>
+        <div class="inline">
+            <span class="chip {{ 'error' if appointment.status == 'cancelada' else 'success' }}">{{ appointment.status }}</span>
+            {% if appointment.status == "programada" and not is_doctor %}
+            <form method="post" action="{{ url_for('appointments.cancel_appointment_view', appointment_id=appointment.id) }}" class="inline">
+                <input name="reason" placeholder="Motivo">
+                <button class="secondary" type="submit">
+                    <span class="material-symbols-outlined">cancel</span>
+                    Cancelar
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </article>
+    {% else %}
+    <article class="appointment-row">
+        <div class="appointment-time">--:--</div>
+        <p>No hay citas programadas.</p>
+    </article>
+    {% endfor %}
 </section>
 {% endblock %}

@@ -3,18 +3,47 @@
 {% block content %}
 <section class="page-title">
     <div>
+        <p class="page-eyebrow">Directorio clinico</p>
         <h1>Pacientes</h1>
         <p>Registro, busqueda y actualizacion de informacion personal.</p>
     </div>
-    <a class="button" href="{{ url_for('patients.new_patient_view') }}">Nuevo paciente</a>
+    {% if session.get("role") == "recepcionista" %}
+    <a class="button" href="{{ url_for('patients.new_patient_view') }}">
+        <span class="material-symbols-outlined">person_add</span>
+        Nuevo paciente
+    </a>
+    {% endif %}
 </section>
 
-<form method="get" class="search">
+<section class="stats-grid">
+    <article class="stat-card">
+        <p class="stat-label">Total pacientes</p>
+        <div class="stat-value">{{ patients|length }} <span class="material-symbols-outlined">groups</span></div>
+    </article>
+    <article class="stat-card">
+        <p class="stat-label">Busqueda</p>
+        <div class="stat-value">{{ "Activa" if q else "General" }} <span class="material-symbols-outlined">search</span></div>
+    </article>
+    <article class="stat-card">
+        <p class="stat-label">Rol</p>
+        <div class="stat-value">{{ session.get("role")|capitalize }} <span class="material-symbols-outlined">badge</span></div>
+    </article>
+    <article class="stat-card">
+        <p class="stat-label">Estado</p>
+        <div class="stat-value">Activo <span class="material-symbols-outlined">check_circle</span></div>
+    </article>
+</section>
+
+<form method="get" class="filters">
     <input name="q" value="{{ q }}" placeholder="Buscar por nombre o documento">
-    <button type="submit">Buscar</button>
+    <button type="submit">
+        <span class="material-symbols-outlined">search</span>
+        Buscar
+    </button>
 </form>
 
 <section class="table-wrap">
+    <div class="table-scroll">
     <table>
         <thead>
             <tr><th>Nombre</th><th>Documento</th><th>Email</th><th>Celular</th><th></th></tr>
@@ -22,16 +51,35 @@
         <tbody>
             {% for patient in patients %}
             <tr>
-                <td>{{ patient.full_name }}</td>
+                <td>
+                    <div class="entity">
+                        <span class="avatar">{{ patient.first_name[0] }}{{ patient.last_name[0] }}</span>
+                        <div>
+                            <strong>{{ patient.full_name }}</strong>
+                            <span>Paciente activo</span>
+                        </div>
+                    </div>
+                </td>
                 <td>{{ patient.document }}</td>
-                <td>{{ patient.email }}</td>
+                <td>
+                    <div>{{ patient.email }}</div>
+                    <span class="muted">Correo registrado</span>
+                </td>
                 <td>{{ patient.phone }}</td>
-                <td><a href="{{ url_for('patients.edit_patient_view', patient_id=patient.id) }}">Editar</a></td>
+                <td>
+                    {% if session.get("role") == "recepcionista" %}
+                    <a class="chip" href="{{ url_for('patients.edit_patient_view', patient_id=patient.id) }}">
+                        <span class="material-symbols-outlined">edit</span>
+                        Editar
+                    </a>
+                    {% endif %}
+                </td>
             </tr>
             {% else %}
             <tr><td colspan="5">No hay pacientes para mostrar.</td></tr>
             {% endfor %}
         </tbody>
     </table>
+    </div>
 </section>
 {% endblock %}

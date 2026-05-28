@@ -2,7 +2,9 @@
 
 {% block content %}
 <section class="panel">
+    <p class="page-eyebrow">Medico</p>
     <h1>Nuevo historial</h1>
+    <p>Registra diagnostico, tratamiento y notas de la consulta.</p>
     <form method="post" action="{{ url_for('records.create_record_view') }}" class="form">
         <label>Paciente
             <select name="patient_id" required>
@@ -21,7 +23,10 @@
         <label>Diagnostico<textarea name="diagnosis" required></textarea></label>
         <label>Tratamiento<textarea name="treatment" required></textarea></label>
         <label>Notas<textarea name="notes"></textarea></label>
-        <button type="submit">Guardar historial</button>
+        <button type="submit">
+            <span class="material-symbols-outlined">save</span>
+            Guardar historial
+        </button>
     </form>
 </section>
 {% endblock %}

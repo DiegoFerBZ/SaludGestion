@@ -2,11 +2,24 @@
 
 {% block content %}
 <section class="auth">
+    <div class="auth-logo">
+        <div class="brand-mark">
+            <span class="material-symbols-outlined">medical_services</span>
+        </div>
+        <div>
+            <h1>SaludGestion</h1>
+            <p>Gestion clinica para profesionales de la salud.</p>
+        </div>
+    </div>
     <h1>Iniciar sesion</h1>
+    <p>Ingresa tus credenciales para acceder al panel.</p>
     <form method="post" action="{{ url_for('auth.login_submit') }}" class="form">
         <label>Usuario<input name="username" required></label>
         <label>Contraseña<input type="password" name="password" required></label>
-        <button type="submit">Entrar</button>
+        <button type="submit">
+            Acceder
+            <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
     </form>
 </section>
 {% endblock %}

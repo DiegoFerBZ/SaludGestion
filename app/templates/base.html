@@ -3,28 +3,105 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SaludGestion</title>
+    <title>{% block title %}SaludGestion{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body>
-    <header class="topbar">
-        <a class="brand" href="{{ url_for('patients.list_patients_view') }}">SaludGestion</a>
-        <nav>
-            {% if session.get("user_id") %}
-                <a href="{{ url_for('patients.list_patients_view') }}">Pacientes</a>
-                <a href="{{ url_for('appointments.list_appointments_view') }}">Citas</a>
-                <a href="{{ url_for('appointments.availability_view') }}">Disponibilidad</a>
-                <a href="{{ url_for('records.list_records_view') }}">Historial</a>
-                <a href="{{ url_for('resources.resources_view') }}">Recursos</a>
-                <a href="{{ url_for('auth.logout_view') }}">Salir</a>
-            {% else %}
-                <a href="{{ url_for('auth.login_view') }}">Login</a>
-                <a href="{{ url_for('auth.register_view') }}">Registro</a>
+<body class="{% if not session.get('user_id') %}auth-body{% endif %}">
+    {% block body %}
+    {% if session.get("user_id") %}
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark">
+                <span class="material-symbols-outlined">medical_services</span>
+            </div>
+            <div>
+                <a class="brand" href="{{ url_for('patients.list_patients_view') }}">SaludGestion</a>
+                <p>Panel {{ "Medico" if session.get("role") == "medico" else "Recepcion" }}</p>
+            </div>
+        </div>
+        <nav class="side-nav">
+            <a class="{{ 'active' if request.endpoint and request.endpoint.startswith('patients.') else '' }}" href="{{ url_for('patients.list_patients_view') }}">
+                <span class="material-symbols-outlined">person</span>
+                <span>Pacientes</span>
+            </a>
+            <a class="{{ 'active' if request.endpoint and request.endpoint.startswith('appointments.') and request.endpoint != 'appointments.availability_view' else '' }}" href="{{ url_for('appointments.list_appointments_view') }}">
+                <span class="material-symbols-outlined">calendar_today</span>
+                <span>{{ "Mi agenda" if session.get("role") == "medico" else "Citas" }}</span>
+            </a>
+            {% if session.get("role") == "recepcionista" %}
+            <a class="{{ 'active' if request.endpoint == 'appointments.availability_view' else '' }}" href="{{ url_for('appointments.availability_view') }}">
+                <span class="material-symbols-outlined">event_available</span>
+                <span>Disponibilidad</span>
+            </a>
+            {% endif %}
+            <a class="{{ 'active' if request.endpoint and request.endpoint.startswith('records.') else '' }}" href="{{ url_for('records.list_records_view') }}">
+                <span class="material-symbols-outlined">history</span>
+                <span>Historial</span>
+            </a>
+            {% if session.get("role") == "recepcionista" %}
+            <a class="{{ 'active' if request.endpoint and request.endpoint.startswith('resources.') else '' }}" href="{{ url_for('resources.resources_view') }}">
+                <span class="material-symbols-outlined">medical_services</span>
+                <span>Recursos</span>
+            </a>
             {% endif %}
         </nav>
-    </header>
-    <main class="container">
-        {% block content %}{% endblock %}
+        {% if session.get("role") == "recepcionista" %}
+        <a class="sidebar-cta" href="{{ url_for('appointments.new_appointment_view') }}">
+            <span class="material-symbols-outlined">add</span>
+            Nueva cita
+        </a>
+        {% endif %}
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout_view') }}">
+                <span class="material-symbols-outlined">logout</span>
+                <span>Cerrar sesion</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="app-shell">
+        <header class="topbar">
+            <button class="icon-button mobile-only" type="button" data-sidebar-toggle>
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <div class="topbar-search">
+                <span class="material-symbols-outlined">search</span>
+                <input placeholder="Buscar pacientes, citas o medicos..." type="search">
+            </div>
+            <div class="topbar-actions">
+                <button class="icon-button" type="button" title="Notificaciones">
+                    <span class="material-symbols-outlined">notifications</span>
+                </button>
+                <button class="icon-button" type="button" title="Ayuda">
+                    <span class="material-symbols-outlined">help</span>
+                </button>
+                <div class="user-chip">
+                    <span class="avatar small">{{ session.get("role", "U")[0]|upper }}</span>
+                    <div>
+                        <strong>{{ "Medico" if session.get("role") == "medico" else "Recepcionista" }}</strong>
+                        <small>Sesion activa</small>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <section class="content">
+            {{ self.content() }}
+        </section>
     </main>
+    {% else %}
+    <main class="auth-shell">
+        {{ self.content() }}
+    </main>
+    {% endif %}
+    {% endblock %}
+    {% if false %}{% block content %}{% endblock %}{% endif %}
+    <script>
+        document.querySelectorAll("[data-sidebar-toggle]").forEach((button) => {
+            button.addEventListener("click", () => document.body.classList.toggle("sidebar-open"));
+        });
+    </script>
 </body>
 </html>

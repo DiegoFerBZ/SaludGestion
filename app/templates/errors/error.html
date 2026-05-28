@@ -2,11 +2,15 @@
 
 {% block content %}
 <section class="panel">
+    <p class="page-eyebrow">Error</p>
     <h1>Algo necesita revision</h1>
     <p>{{ error.message }}</p>
     {% if error.details %}
         <pre>{{ error.details }}</pre>
     {% endif %}
-    <a class="button" href="javascript:history.back()">Volver</a>
+    <a class="button secondary" href="javascript:history.back()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Volver
+    </a>
 </section>
 {% endblock %}

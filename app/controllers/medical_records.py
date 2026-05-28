@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 
-from app.controllers.decorators import current_view_user, role_required, view_login_required
+from app.controllers.decorators import current_view_user, role_required, view_login_required, view_role_required
 from app.models import Role
 from app.services.medical_record_service import MedicalRecordService
 from app.services.patient_service import PatientService
@@ -19,7 +19,7 @@ def list_records_view():
 
 
 @records_bp.get("/records/new")
-@view_login_required
+@view_role_required(Role.MEDICO.value)
 def new_record_view():
     return render_template(
         "records/form.html",
@@ -30,7 +30,7 @@ def new_record_view():
 
 
 @records_bp.post("/records")
-@view_login_required
+@view_role_required(Role.MEDICO.value)
 def create_record_view():
     MedicalRecordService.create(request.form)
     return redirect(url_for("records.list_records_view", patient_id=request.form.get("patient_id")))
@@ -44,7 +44,7 @@ def create_record_api():
 
 
 @records_bp.get("/api/patients/<int:patient_id>/records")
-@role_required(Role.MEDICO.value)
+@role_required(Role.MEDICO.value, Role.RECEPCIONISTA.value)
 def list_records_api(patient_id):
     records = MedicalRecordService.list_by_patient(patient_id)
     return api_response(True, [record.to_dict() for record in records])

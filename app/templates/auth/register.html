@@ -2,7 +2,13 @@
 
 {% block content %}
 <section class="auth">
+    <div class="auth-logo">
+        <div class="brand-mark">
+            <span class="material-symbols-outlined">person_add</span>
+        </div>
+    </div>
     <h1>Registro de usuario</h1>
+    <p>Crea una cuenta para operar el sistema segun tu rol.</p>
     <form method="post" action="{{ url_for('auth.register_submit') }}" class="form grid">
         <label>Nombre<input name="first_name" required></label>
         <label>Apellido<input name="last_name" required></label>
@@ -17,7 +23,10 @@
             </select>
         </label>
         <label>Especialidad<input name="specialty" placeholder="Solo para medicos"></label>
-        <button type="submit">Crear cuenta</button>
+        <button type="submit">
+            Crear cuenta
+            <span class="material-symbols-outlined">check_circle</span>
+        </button>
     </form>
 </section>
 {% endblock %}

@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 
-from app.controllers.decorators import role_required, view_login_required
+from app.controllers.decorators import role_required, view_login_required, view_role_required
 from app.models import Role
 from app.services.patient_service import PatientService
 from app.utils.responses import api_response
@@ -16,26 +16,26 @@ def list_patients_view():
 
 
 @patients_bp.get("/patients/new")
-@view_login_required
+@view_role_required(Role.RECEPCIONISTA.value)
 def new_patient_view():
     return render_template("patients/form.html", patient=None)
 
 
 @patients_bp.post("/patients")
-@view_login_required
+@view_role_required(Role.RECEPCIONISTA.value)
 def create_patient_view():
     PatientService.create(request.form)
     return redirect(url_for("patients.list_patients_view"))
 
 
 @patients_bp.get("/patients/<int:patient_id>/edit")
-@view_login_required
+@view_role_required(Role.RECEPCIONISTA.value)
 def edit_patient_view(patient_id):
     return render_template("patients/form.html", patient=PatientService.get(patient_id))
 
 
 @patients_bp.post("/patients/<int:patient_id>/edit")
-@view_login_required
+@view_role_required(Role.RECEPCIONISTA.value)
 def update_patient_view(patient_id):
     PatientService.update(patient_id, request.form)
     return redirect(url_for("patients.list_patients_view"))

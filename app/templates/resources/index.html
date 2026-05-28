@@ -3,28 +3,56 @@
 {% block content %}
 <section class="page-title">
     <div>
-        <h1>Recursos</h1>
-        <p>Medicos, consultorios y asignaciones.</p>
+        <p class="page-eyebrow">Recursos hospitalarios</p>
+        <h1>Medicos y consultorios</h1>
+        <p>Gestiona el personal profesional, sus especialidades y espacios asignados.</p>
     </div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card">
+        <p class="stat-label">Medicos</p>
+        <div class="stat-value">{{ doctors|length }} <span class="material-symbols-outlined">medical_services</span></div>
+    </article>
+    <article class="stat-card">
+        <p class="stat-label">Consultorios</p>
+        <div class="stat-value">{{ rooms|length }} <span class="material-symbols-outlined">meeting_room</span></div>
+    </article>
+    <article class="stat-card">
+        <p class="stat-label">Horario</p>
+        <div class="stat-value">8h <span class="material-symbols-outlined">schedule</span></div>
+    </article>
+    <article class="stat-card">
+        <p class="stat-label">Bloques</p>
+        <div class="stat-value">20m <span class="material-symbols-outlined">timer</span></div>
+    </article>
 </section>
 
 <section class="two-columns">
     <div class="panel">
-        <h2>Consultorios</h2>
+        <p class="page-eyebrow">Consultorios</p>
+        <h2>Crear consultorio</h2>
         <form method="post" action="{{ url_for('resources.create_room_view') }}" class="form">
             <label>Nombre<input name="name" required></label>
             <label>Ubicacion<input name="location"></label>
-            <button type="submit">Crear consultorio</button>
+            <button type="submit">
+                <span class="material-symbols-outlined">add_home_work</span>
+                Crear consultorio
+            </button>
         </form>
         <ul class="list">
             {% for room in rooms %}
-                <li>{{ room.name }} {{ "(" ~ room.location ~ ")" if room.location }}</li>
+                <li>
+                    <strong>{{ room.name }}</strong>
+                    <div class="muted">{{ room.location or "Sin ubicacion" }}</div>
+                </li>
             {% endfor %}
         </ul>
     </div>
 
     <div class="panel">
-        <h2>Medicos</h2>
+        <p class="page-eyebrow">Personal medico</p>
+        <h2>Registrar medico</h2>
         <form method="post" action="{{ url_for('resources.create_doctor_view') }}" class="form grid">
             <label>Nombre<input name="first_name" required></label>
             <label>Apellido<input name="last_name" required></label>
@@ -41,13 +69,52 @@
                     {% endfor %}
                 </select>
             </label>
-            <button type="submit">Registrar medico</button>
+            <button type="submit">
+                <span class="material-symbols-outlined">person_add</span>
+                Registrar medico
+            </button>
         </form>
-        <ul class="list">
-            {% for doctor in doctors %}
-                <li>{{ doctor.full_name }} - {{ doctor.specialty }} - {{ doctor.room.name if doctor.room else "Sin consultorio" }}</li>
-            {% endfor %}
-        </ul>
     </div>
+</section>
+
+<section class="page-title" style="margin-top: 28px;">
+    <div>
+        <p class="page-eyebrow">Directorio</p>
+        <h1>Medicos registrados</h1>
+    </div>
+</section>
+
+<section class="doctor-grid">
+    {% for doctor in doctors %}
+    <article class="doctor-card">
+        <div class="doctor-card-header">
+            <span class="avatar">{{ doctor.first_name[0] }}{{ doctor.last_name[0] }}</span>
+            <div>
+                <span class="chip success">{{ doctor.specialty }}</span>
+                <h2>Dr. {{ doctor.full_name }}</h2>
+                <p>{{ doctor.room.name if doctor.room else "Sin consultorio asignado" }}</p>
+            </div>
+        </div>
+        <div class="doctor-card-body">
+            <span class="muted"><span class="material-symbols-outlined">mail</span> {{ doctor.email }}</span>
+            <span class="muted"><span class="material-symbols-outlined">schedule</span> 08:00 - 12:00 / 14:00 - 18:00</span>
+            <span class="chip success"><span class="material-symbols-outlined">check_circle</span> Disponible para agenda</span>
+        </div>
+        <div class="doctor-card-actions">
+            <a class="button secondary" href="{{ url_for('appointments.availability_view', doctor_id=doctor.id) }}">
+                <span class="material-symbols-outlined">event_available</span>
+                Ver agenda
+            </a>
+            <a class="button" href="{{ url_for('appointments.new_appointment_view', doctor_id=doctor.id) }}">
+                <span class="material-symbols-outlined">add</span>
+                Agendar
+            </a>
+        </div>
+    </article>
+    {% else %}
+    <article class="panel">
+        <p>No hay medicos registrados.</p>
+    </article>
+    {% endfor %}
 </section>
 {% endblock %}

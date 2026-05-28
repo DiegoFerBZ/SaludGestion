@@ -32,6 +32,20 @@ def view_login_required(fn):
     return decorated
 
 
+def view_role_required(*roles):
+    def wrapper(fn):
+        @wraps(fn)
+        @view_login_required
+        def decorated(*args, **kwargs):
+            if session.get("role") not in roles:
+                raise ForbiddenError("No tienes permisos para esta accion")
+            return fn(*args, **kwargs)
+
+        return decorated
+
+    return wrapper
+
+
 def current_view_user():
     user_id = session.get("user_id")
     if not user_id:

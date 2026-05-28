@@ -2,14 +2,19 @@
 
 {% block content %}
 <section class="panel">
+    <p class="page-eyebrow">Paciente</p>
     <h1>{{ "Editar paciente" if patient else "Nuevo paciente" }}</h1>
+    <p>Los campos obligatorios se validan antes de guardar.</p>
     <form method="post" action="{{ url_for('patients.update_patient_view', patient_id=patient.id) if patient else url_for('patients.create_patient_view') }}" class="form grid">
         <label>Nombre<input name="first_name" value="{{ patient.first_name if patient else '' }}" required></label>
         <label>Apellido<input name="last_name" value="{{ patient.last_name if patient else '' }}" required></label>
         <label>Documento<input name="document" value="{{ patient.document if patient else '' }}" required></label>
         <label>Email<input type="email" name="email" value="{{ patient.email if patient else '' }}" required></label>
         <label>Celular<input name="phone" value="{{ patient.phone if patient else '' }}" required></label>
-        <button type="submit">Guardar</button>
+        <button type="submit">
+            <span class="material-symbols-outlined">save</span>
+            Guardar
+        </button>
     </form>
 </section>
 {% endblock %}

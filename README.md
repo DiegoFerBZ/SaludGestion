@@ -29,6 +29,17 @@ flask db migrate -m "initial schema"
 flask db upgrade
 ```
 
+## Datos iniciales
+
+```powershell
+.\.venv\Scripts\python.exe seed.py
+```
+
+Usuarios de prueba:
+
+- Recepcionista: `recepcion` / `Recepcion123`
+- Medicos: `lperez`, `mgomez`, `cvargas` / `Medico123`
+
 ## Ejecutar
 
 ```powershell

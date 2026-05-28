@@ -2,8 +2,26 @@
 
 {% block content %}
 <section class="panel">
+    <p class="page-eyebrow">Recepcion</p>
     <h1>Agendar cita</h1>
-    <form method="post" action="{{ url_for('appointments.create_appointment_view') }}" class="form grid">
+    <p>Consulta la disponibilidad del medico y selecciona un bloque verde.</p>
+    <form method="get" action="{{ url_for('appointments.new_appointment_view') }}" class="form grid schedule-filters">
+        <label>Medico
+            <select name="doctor_id" required>
+                {% for doctor in doctors %}
+                    <option value="{{ doctor.id }}" {% if selected_doctor == doctor.id %}selected{% endif %}>{{ doctor.full_name }} - {{ doctor.specialty }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>Fecha<input type="date" name="date" value="{{ selected_date }}" required></label>
+        <button type="submit">
+            <span class="material-symbols-outlined">event_available</span>
+            Ver disponibilidad
+        </button>
+    </form>
+
+    <form method="post" action="{{ url_for('appointments.create_appointment_view') }}" class="form">
+        <input type="hidden" name="doctor_id" value="{{ selected_doctor }}">
         <label>Paciente
             <select name="patient_id" required>
                 {% for patient in patients %}
@@ -11,15 +29,31 @@
                 {% endfor %}
             </select>
         </label>
-        <label>Medico
-            <select name="doctor_id" required>
-                {% for doctor in doctors %}
-                    <option value="{{ doctor.id }}">{{ doctor.full_name }} - {{ doctor.specialty }}</option>
-                {% endfor %}
-            </select>
-        </label>
-        <label>Inicio<input type="datetime-local" name="starts_at" required></label>
-        <button type="submit">Confirmar cita</button>
+
+        {% if availability %}
+        <fieldset class="slot-picker">
+            <legend>Selecciona un bloque disponible</legend>
+            {% for slot in availability.slots %}
+                <label class="slot-option {{ 'available' if slot.available else 'busy' }}">
+                    <input
+                        type="radio"
+                        name="starts_at"
+                        value="{{ slot.starts_at }}"
+                        {% if not slot.available %}disabled{% endif %}
+                        required
+                    >
+                    <span>{{ slot.starts_at[11:16] }} - {{ slot.ends_at[11:16] }}</span>
+                </label>
+            {% endfor %}
+        </fieldset>
+        {% else %}
+        <p>No hay medicos disponibles para consultar agenda.</p>
+        {% endif %}
+
+        <button type="submit">
+            <span class="material-symbols-outlined">check_circle</span>
+            Confirmar cita
+        </button>
     </form>
 </section>
 {% endblock %}
