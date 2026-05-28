@@ -3,8 +3,6 @@ from flask import Blueprint, redirect, render_template, request, url_for
 from app.controllers.decorators import current_view_user, role_required, view_login_required, view_role_required
 from app.models import Role
 from app.services.medical_record_service import MedicalRecordService
-from app.services.patient_service import PatientService
-from app.services.resource_service import ResourceService
 from app.utils.responses import api_response
 
 records_bp = Blueprint("records", __name__, url_prefix="")
@@ -13,9 +11,9 @@ records_bp = Blueprint("records", __name__, url_prefix="")
 @records_bp.get("/records")
 @view_login_required
 def list_records_view():
-    patient_id = request.args.get("patient_id")
-    records = MedicalRecordService.list_by_patient(patient_id) if patient_id else []
-    return render_template("records/index.html", patients=PatientService.search(), records=records)
+    patient_document = request.args.get("patient_document")
+    records = MedicalRecordService.list_by_patient_document(patient_document) if patient_document else []
+    return render_template("records/index.html", records=records, patient_document=patient_document or "")
 
 
 @records_bp.get("/records/new")
@@ -23,8 +21,6 @@ def list_records_view():
 def new_record_view():
     return render_template(
         "records/form.html",
-        patients=PatientService.search(),
-        doctors=ResourceService.list_doctors(),
         current_user=current_view_user(),
     )
 
@@ -33,7 +29,7 @@ def new_record_view():
 @view_role_required(Role.MEDICO.value)
 def create_record_view():
     MedicalRecordService.create_for_doctor(request.form, current_view_user().id)
-    return redirect(url_for("records.list_records_view", patient_id=request.form.get("patient_id")))
+    return redirect(url_for("records.list_records_view", patient_document=request.form.get("patient_document")))
 
 
 @records_bp.post("/api/records")

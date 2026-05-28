@@ -45,6 +45,13 @@ class PatientService:
         return patient
 
     @staticmethod
+    def get_by_document(document):
+        patient = Patient.query.filter_by(document=normalize_text(document)).first()
+        if not patient:
+            raise NotFoundError("Paciente no encontrado para el documento ingresado")
+        return patient
+
+    @staticmethod
     def update(patient_id, data):
         patient = PatientService.get(patient_id)
         require_fields(data, ["first_name", "last_name", "document", "email", "phone"])

@@ -51,6 +51,11 @@ a {
     font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
 }
 
+.material-symbols-outlined.inline-icon {
+    font-size: 17px;
+    margin-right: 4px;
+}
+
 .auth-body {
     background:
         radial-gradient(circle at 20% 20%, rgba(0, 94, 184, 0.09), transparent 30%),
@@ -293,12 +298,14 @@ p {
 .record,
 .stat-card,
 .doctor-card,
+.filter-panel,
 .filters,
 .timeline,
 .appointment-list {
     background: var(--surface);
     border: 1px solid var(--outline);
     border-radius: var(--radius);
+    margin-bottom: 1rem;
 }
 
 .panel,
@@ -331,6 +338,41 @@ p {
 
 .grid {
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.form-layout {
+    display: grid;
+    gap: 22px;
+}
+
+.form-card {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+    border: 1px solid var(--outline);
+    border-radius: var(--radius);
+    background: #fbfdff;
+}
+
+.form-card.flush {
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    align-items: end;
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 label {
@@ -421,13 +463,35 @@ button.secondary:hover {
     overflow-wrap: anywhere;
 }
 
-.filters {
+.filters,
+.filter-panel {
     display: grid;
-    grid-template-columns: minmax(220px, 1fr) auto;
     gap: 14px;
     align-items: center;
+}
+
+.filter-panel {
     padding: 16px;
     margin-bottom: 18px;
+}
+
+.filter-panel .filters {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.filters {
+    grid-template-columns: minmax(220px, 1fr) auto;
+}
+
+.appointment-filters {
+    grid-template-columns: minmax(170px, 0.8fr) minmax(220px, 1fr) minmax(220px, 1fr) auto;
+}
+
+.compact-filters {
+    grid-template-columns: minmax(240px, 1fr) auto;
+    align-items: end;
 }
 
 .search {

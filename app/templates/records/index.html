@@ -15,18 +15,23 @@
     {% endif %}
 </section>
 
-<form method="get" class="filters">
-    <select name="patient_id" required>
-        <option value="">Selecciona paciente</option>
-        {% for patient in patients %}
-            <option value="{{ patient.id }}" {% if request.args.get('patient_id') == patient.id|string %}selected{% endif %}>{{ patient.full_name }}</option>
-        {% endfor %}
-    </select>
-    <button type="submit">
-        <span class="material-symbols-outlined">manage_search</span>
-        Consultar
-    </button>
-</form>
+<section class="filter-panel">
+    <form method="get" class="filters compact-filters">
+        <label>Documento paciente
+            <input name="patient_document" value="{{ patient_document }}" placeholder="CC del paciente" required>
+        </label>
+        <div class="form-actions">
+            <button type="submit">
+                <span class="material-symbols-outlined">manage_search</span>
+                Consultar
+            </button>
+            <a class="button secondary" href="{{ url_for('records.list_records_view') }}">
+                <span class="material-symbols-outlined">restart_alt</span>
+                Limpiar
+            </a>
+        </div>
+    </form>
+</section>
 
 <section class="timeline">
     {% for record in records %}

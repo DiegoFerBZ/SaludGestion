@@ -1,6 +1,7 @@
 from app.errors.exceptions import NotFoundError
 from app.extensions import db
 from app.models import Doctor, MedicalRecord, Patient
+from app.services.patient_service import PatientService
 from app.services.validators import require_fields
 
 
@@ -46,8 +47,13 @@ class MedicalRecordService:
 
     @staticmethod
     def create_for_doctor(data, doctor_id):
-        require_fields(data, ["patient_id", "diagnosis", "treatment"])
-        record = MedicalRecordService.build(data, data["patient_id"], doctor_id)
+        patient = (
+            PatientService.get_by_document(data.get("patient_document"))
+            if data.get("patient_document")
+            else PatientService.get(data.get("patient_id"))
+        )
+        require_fields(data, ["diagnosis", "treatment"])
+        record = MedicalRecordService.build(data, patient.id, doctor_id)
         db.session.add(record)
         db.session.commit()
         return record
@@ -57,3 +63,12 @@ class MedicalRecordService:
         if not Patient.query.get(patient_id):
             raise NotFoundError("Paciente no encontrado")
         return MedicalRecord.query.filter_by(patient_id=patient_id).order_by(MedicalRecord.created_at.desc()).all()
+
+    @staticmethod
+    def list_by_patient_document(document):
+        patient = PatientService.get_by_document(document)
+        return (
+            MedicalRecord.query.filter_by(patient_id=patient.id)
+            .order_by(MedicalRecord.created_at.desc())
+            .all()
+        )

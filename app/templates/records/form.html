@@ -5,28 +5,20 @@
     <p class="page-eyebrow">Medico</p>
     <h1>Nuevo historial</h1>
     <p>Registra diagnostico, tratamiento y notas de la consulta.</p>
-    <form method="post" action="{{ url_for('records.create_record_view') }}" class="form">
-        <label>Paciente
-            <select name="patient_id" required>
-                {% for patient in patients %}
-                    <option value="{{ patient.id }}">{{ patient.full_name }}</option>
-                {% endfor %}
-            </select>
-        </label>
-        <label>Medico
-            <select name="doctor_id" required>
-                {% for doctor in doctors %}
-                    <option value="{{ doctor.id }}" {% if current_user and current_user.id == doctor.id %}selected{% endif %}>{{ doctor.full_name }}</option>
-                {% endfor %}
-            </select>
-        </label>
+    <form method="post" action="{{ url_for('records.create_record_view') }}" class="form-card">
+        <div class="form-grid">
+            <label>Documento paciente<input name="patient_document" placeholder="CC del paciente" required></label>
+            <label>Medico<input value="{{ current_user.full_name if current_user else '' }}" disabled></label>
+        </div>
         <label>Diagnostico<textarea name="diagnosis" required></textarea></label>
         <label>Tratamiento<textarea name="treatment" required></textarea></label>
         <label>Notas<textarea name="notes"></textarea></label>
-        <button type="submit">
-            <span class="material-symbols-outlined">save</span>
-            Guardar historial
-        </button>
+        <div class="form-actions">
+            <button type="submit">
+                <span class="material-symbols-outlined">save</span>
+                Guardar historial
+            </button>
+        </div>
     </form>
 </section>
 {% endblock %}

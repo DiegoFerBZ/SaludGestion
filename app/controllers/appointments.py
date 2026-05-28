@@ -7,7 +7,6 @@ from app.controllers.decorators import current_view_user, role_required, view_lo
 from app.models import Role
 from app.services.appointment_service import AppointmentService
 from app.services.medical_record_service import MedicalRecordService
-from app.services.patient_service import PatientService
 from app.services.resource_service import ResourceService
 from app.utils.responses import api_response
 
@@ -25,6 +24,8 @@ def list_appointments_view():
     appointments = AppointmentService.list(
         doctor_id=doctor_id,
         patient_id=request.args.get("patient_id") or None,
+        patient_document=request.args.get("patient_document") or None,
+        doctor_query=None if doctor_id else request.args.get("doctor_q") or None,
     )
     return render_template(
         "appointments/index.html",
@@ -70,7 +71,6 @@ def new_appointment_view():
 
     return render_template(
         "appointments/form.html",
-        patients=PatientService.search(),
         doctors=doctors,
         selected_doctor=int(selected_doctor) if selected_doctor else None,
         selected_date=selected_date,
@@ -116,7 +116,12 @@ def list_appointments_api():
     doctor_id = request.args.get("doctor_id")
     if get_jwt().get("role") == Role.MEDICO.value:
         doctor_id = get_jwt_identity()
-    appointments = AppointmentService.list(doctor_id, request.args.get("patient_id"))
+    appointments = AppointmentService.list(
+        doctor_id=doctor_id,
+        patient_id=request.args.get("patient_id"),
+        patient_document=request.args.get("patient_document"),
+        doctor_query=None if doctor_id else request.args.get("doctor_q"),
+    )
     return api_response(True, [appointment.to_dict() for appointment in appointments])
 
 

@@ -5,6 +5,7 @@ from sqlalchemy import and_
 from app.errors.exceptions import ConflictError, ForbiddenError, NotFoundError, ValidationError
 from app.extensions import db
 from app.models import Appointment, AppointmentStatus, Doctor, MedicalRecord, Patient, Role
+from app.services.patient_service import PatientService
 from app.services.validators import require_fields
 
 
@@ -47,7 +48,11 @@ class AppointmentService:
 
     @staticmethod
     def create(data):
-        patient = Patient.query.get(data.get("patient_id"))
+        patient = (
+            PatientService.get_by_document(data.get("patient_document"))
+            if data.get("patient_document")
+            else Patient.query.get(data.get("patient_id"))
+        )
         doctor = Doctor.query.get(data.get("doctor_id"))
         if not patient:
             raise NotFoundError("Paciente no encontrado")
@@ -110,12 +115,25 @@ class AppointmentService:
         return appointment, record
 
     @staticmethod
-    def list(doctor_id=None, patient_id=None):
+    def list(doctor_id=None, patient_id=None, patient_document=None, doctor_query=None):
         query = Appointment.query
         if doctor_id:
             query = query.filter_by(doctor_id=doctor_id)
         if patient_id:
             query = query.filter_by(patient_id=patient_id)
+        if patient_document:
+            like = f"%{patient_document.strip()}%"
+            query = query.filter(Appointment.patient.has(Patient.document.ilike(like)))
+        if doctor_query:
+            like = f"%{doctor_query.strip()}%"
+            query = query.filter(
+                Appointment.doctor.has(
+                    (Doctor.first_name.ilike(like))
+                    | (Doctor.last_name.ilike(like))
+                    | (Doctor.username.ilike(like))
+                    | (Doctor.document.ilike(like))
+                )
+            )
         return query.order_by(Appointment.starts_at).all()
 
     @staticmethod

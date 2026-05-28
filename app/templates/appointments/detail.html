@@ -31,6 +31,13 @@
                 <strong>{{ appointment.doctor.specialty }}</strong>
             </div>
             <div>
+                <span class="meta">Consultorio</span>
+                <strong>{{ appointment.doctor.room.name if appointment.doctor.room else "Sin consultorio asignado" }}</strong>
+                {% if appointment.doctor.room and appointment.doctor.room.location %}
+                    <span class="muted">{{ appointment.doctor.room.location }}</span>
+                {% endif %}
+            </div>
+            <div>
                 <span class="meta">Estado</span>
                 <span class="chip {{ 'error' if appointment.status == 'cancelada' else 'success' }}">{{ appointment.status }}</span>
             </div>
@@ -41,14 +48,16 @@
     <article class="panel">
         <p class="page-eyebrow">Atencion medica</p>
         <h2>Nuevo historial</h2>
-        <form method="post" action="{{ url_for('appointments.complete_appointment_view', appointment_id=appointment.id) }}" class="form">
+        <form method="post" action="{{ url_for('appointments.complete_appointment_view', appointment_id=appointment.id) }}" class="form-card flush">
             <label>Diagnostico<textarea name="diagnosis" required></textarea></label>
             <label>Tratamiento<textarea name="treatment" required></textarea></label>
             <label>Notas<textarea name="notes"></textarea></label>
-            <button type="submit">
-                <span class="material-symbols-outlined">task_alt</span>
-                Finalizar cita
-            </button>
+            <div class="form-actions">
+                <button type="submit">
+                    <span class="material-symbols-outlined">task_alt</span>
+                    Finalizar cita
+                </button>
+            </div>
         </form>
     </article>
     {% endif %}
