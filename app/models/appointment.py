@@ -6,6 +6,7 @@ from app.extensions import db
 class AppointmentStatus(str, Enum):
     PROGRAMADA = "programada"
     CANCELADA = "cancelada"
+    FINALIZADA = "finalizada"
 
 
 class Appointment(db.Model):

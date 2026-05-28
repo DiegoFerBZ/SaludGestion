@@ -27,6 +27,9 @@ def view_login_required(fn):
     def decorated(*args, **kwargs):
         if not session.get("user_id"):
             return redirect(url_for("auth.login_view"))
+        if not User.query.get(session.get("user_id")):
+            session.clear()
+            return redirect(url_for("auth.login_view"))
         return fn(*args, **kwargs)
 
     return decorated

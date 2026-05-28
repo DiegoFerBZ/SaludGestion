@@ -2,9 +2,10 @@ from datetime import date, datetime, time, timedelta
 
 from sqlalchemy import and_
 
-from app.errors.exceptions import ConflictError, NotFoundError, ValidationError
+from app.errors.exceptions import ConflictError, ForbiddenError, NotFoundError, ValidationError
 from app.extensions import db
-from app.models import Appointment, AppointmentStatus, Doctor, Patient
+from app.models import Appointment, AppointmentStatus, Doctor, MedicalRecord, Patient, Role
+from app.services.validators import require_fields
 
 
 class AppointmentService:
@@ -79,6 +80,34 @@ class AppointmentService:
         appointment.cancellation_reason = reason
         db.session.commit()
         return appointment
+
+    @staticmethod
+    def get_for_user(appointment_id, user_id, role):
+        appointment = Appointment.query.get(appointment_id)
+        if not appointment:
+            raise NotFoundError("Cita no encontrada")
+        if role == Role.MEDICO.value and appointment.doctor_id != int(user_id):
+            raise ForbiddenError("No puedes consultar citas de otros medicos")
+        return appointment
+
+    @staticmethod
+    def complete_with_record(appointment_id, doctor_id, data):
+        appointment = AppointmentService.get_for_user(appointment_id, doctor_id, Role.MEDICO.value)
+        if appointment.status != AppointmentStatus.PROGRAMADA.value:
+            raise ConflictError("Solo se pueden finalizar citas programadas")
+
+        require_fields(data, ["diagnosis", "treatment"])
+        record = MedicalRecord(
+            patient_id=appointment.patient_id,
+            doctor_id=appointment.doctor_id,
+            diagnosis=data["diagnosis"].strip(),
+            treatment=data["treatment"].strip(),
+            notes=(data.get("notes") or "").strip() or None,
+        )
+        appointment.status = AppointmentStatus.FINALIZADA.value
+        db.session.add(record)
+        db.session.commit()
+        return appointment, record
 
     @staticmethod
     def list(doctor_id=None, patient_id=None):

@@ -5,3 +5,4 @@ __pycache__/
 instance/
 migrations/
 .pytest_cache/
+mock_citas/

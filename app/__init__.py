@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, request, url_for
 
 from app.config import Config
 from app.controllers.appointments import appointments_bp
@@ -8,6 +8,13 @@ from app.controllers.patients import patients_bp
 from app.controllers.resources import resources_bp
 from app.errors.handlers import register_error_handlers
 from app.extensions import db, jwt, migrate
+from app.utils.responses import api_response
+
+
+def jwt_unauthorized_response(message):
+    if request.path.startswith("/api/"):
+        return api_response(False, {"message": message, "details": {}}, 401)
+    return redirect(url_for("auth.login_view"))
 
 
 def create_app(config_class=Config):
@@ -17,6 +24,18 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return jwt_unauthorized_response("Sesion vencida")
+
+    @jwt.invalid_token_loader
+    def invalid_token_callback(reason):
+        return jwt_unauthorized_response("Token invalido")
+
+    @jwt.unauthorized_loader
+    def missing_token_callback(reason):
+        return jwt_unauthorized_response("Sesion no iniciada")
 
     register_error_handlers(app)
 

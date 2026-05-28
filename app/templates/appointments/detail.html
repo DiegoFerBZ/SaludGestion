@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="page-title">
+    <div>
+        <p class="page-eyebrow">Detalle de cita</p>
+        <h1>{{ appointment.patient.full_name }}</h1>
+        <p>{{ appointment.starts_at.strftime("%Y-%m-%d %H:%M") }} a {{ appointment.ends_at.strftime("%H:%M") }} con Dr. {{ appointment.doctor.full_name }}</p>
+    </div>
+    <a class="button secondary" href="{{ url_for('appointments.list_appointments_view') }}">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Volver
+    </a>
+</section>
+
+<section class="appointment-detail">
+    <article class="panel">
+        <p class="page-eyebrow">Cita</p>
+        <h2>Informacion general</h2>
+        <div class="detail-grid">
+            <div>
+                <span class="meta">Paciente</span>
+                <strong>{{ appointment.patient.full_name }}</strong>
+            </div>
+            <div>
+                <span class="meta">Medico</span>
+                <strong>Dr. {{ appointment.doctor.full_name }}</strong>
+            </div>
+            <div>
+                <span class="meta">Especialidad</span>
+                <strong>{{ appointment.doctor.specialty }}</strong>
+            </div>
+            <div>
+                <span class="meta">Estado</span>
+                <span class="chip {{ 'error' if appointment.status == 'cancelada' else 'success' }}">{{ appointment.status }}</span>
+            </div>
+        </div>
+    </article>
+
+    {% if can_attend %}
+    <article class="panel">
+        <p class="page-eyebrow">Atencion medica</p>
+        <h2>Nuevo historial</h2>
+        <form method="post" action="{{ url_for('appointments.complete_appointment_view', appointment_id=appointment.id) }}" class="form">
+            <label>Diagnostico<textarea name="diagnosis" required></textarea></label>
+            <label>Tratamiento<textarea name="treatment" required></textarea></label>
+            <label>Notas<textarea name="notes"></textarea></label>
+            <button type="submit">
+                <span class="material-symbols-outlined">task_alt</span>
+                Finalizar cita
+            </button>
+        </form>
+    </article>
+    {% endif %}
+</section>
+
+<section class="timeline">
+    <div>
+        <p class="page-eyebrow">Paciente</p>
+        <h2>Historial medico previo</h2>
+    </div>
+    {% for record in records %}
+        <article class="timeline-item">
+            <span class="timeline-dot"><span class="material-symbols-outlined">stethoscope</span></span>
+            <div>
+                <span class="meta">{{ record.created_at.strftime("%Y-%m-%d") }} &middot; Dr. {{ record.doctor.full_name }}</span>
+                <h2>Consulta clinica</h2>
+            </div>
+            <div class="record">
+                <p><b>Diagnostico:</b> {{ record.diagnosis }}</p>
+                <p><b>Tratamiento:</b> {{ record.treatment }}</p>
+                {% if record.notes %}<p><b>Notas:</b> {{ record.notes }}</p>{% endif %}
+            </div>
+        </article>
+    {% else %}
+        <p>No hay registros para mostrar.</p>
+    {% endfor %}
+</section>
+{% endblock %}

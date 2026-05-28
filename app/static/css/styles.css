@@ -531,10 +531,22 @@ tbody tr:hover {
 }
 
 .two-columns,
-.dashboard-grid {
+.dashboard-grid,
+.appointment-detail {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 18px;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.detail-grid strong {
+    display: block;
+    margin-top: 4px;
 }
 
 .doctor-grid {

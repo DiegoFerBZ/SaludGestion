@@ -1,5 +1,6 @@
-from flask import request, render_template
+from flask import redirect, render_template, request, url_for
 from flask_jwt_extended.exceptions import JWTExtendedException
+from jwt.exceptions import PyJWTError
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import HTTPException
 
@@ -24,7 +25,14 @@ def register_error_handlers(app):
         data = {"message": str(error), "details": {}}
         if wants_json_response():
             return api_response(False, data, 401)
-        return render_template("errors/error.html", error=data), 401
+        return redirect(url_for("auth.login_view"))
+
+    @app.errorhandler(PyJWTError)
+    def handle_pyjwt_error(error):
+        data = {"message": str(error), "details": {}}
+        if wants_json_response():
+            return api_response(False, data, 401)
+        return redirect(url_for("auth.login_view"))
 
     @app.errorhandler(SQLAlchemyError)
     def handle_database_error(error):

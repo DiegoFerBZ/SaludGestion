@@ -6,6 +6,7 @@ from flask_jwt_extended import get_jwt, get_jwt_identity
 from app.controllers.decorators import current_view_user, role_required, view_login_required, view_role_required
 from app.models import Role
 from app.services.appointment_service import AppointmentService
+from app.services.medical_record_service import MedicalRecordService
 from app.services.patient_service import PatientService
 from app.services.resource_service import ResourceService
 from app.utils.responses import api_response
@@ -31,6 +32,30 @@ def list_appointments_view():
         doctors=ResourceService.list_doctors(),
         is_doctor=session.get("role") == Role.MEDICO.value,
     )
+
+
+@appointments_bp.get("/appointments/<int:appointment_id>")
+@view_login_required
+def appointment_detail_view(appointment_id):
+    appointment = AppointmentService.get_for_user(
+        appointment_id,
+        current_view_user().id,
+        session.get("role"),
+    )
+    records = MedicalRecordService.list_by_patient(appointment.patient_id)
+    return render_template(
+        "appointments/detail.html",
+        appointment=appointment,
+        records=records,
+        can_attend=session.get("role") == Role.MEDICO.value and appointment.status == "programada",
+    )
+
+
+@appointments_bp.post("/appointments/<int:appointment_id>/complete")
+@view_role_required(Role.MEDICO.value)
+def complete_appointment_view(appointment_id):
+    AppointmentService.complete_with_record(appointment_id, current_view_user().id, request.form)
+    return redirect(url_for("appointments.appointment_detail_view", appointment_id=appointment_id))
 
 
 @appointments_bp.get("/appointments/new")
@@ -95,6 +120,13 @@ def list_appointments_api():
     return api_response(True, [appointment.to_dict() for appointment in appointments])
 
 
+@appointments_bp.get("/api/appointments/<int:appointment_id>")
+@role_required(Role.RECEPCIONISTA.value, Role.MEDICO.value)
+def appointment_detail_api(appointment_id):
+    appointment = AppointmentService.get_for_user(appointment_id, get_jwt_identity(), get_jwt().get("role"))
+    return api_response(True, appointment.to_dict())
+
+
 @appointments_bp.post("/api/appointments")
 @role_required(Role.RECEPCIONISTA.value)
 def create_appointment_api():
@@ -107,6 +139,17 @@ def create_appointment_api():
 def cancel_appointment_api(appointment_id):
     appointment = AppointmentService.cancel(appointment_id, (request.get_json() or {}).get("reason"))
     return api_response(True, appointment.to_dict())
+
+
+@appointments_bp.post("/api/appointments/<int:appointment_id>/complete")
+@role_required(Role.MEDICO.value)
+def complete_appointment_api(appointment_id):
+    appointment, record = AppointmentService.complete_with_record(
+        appointment_id,
+        get_jwt_identity(),
+        request.get_json() or {},
+    )
+    return api_response(True, {"appointment": appointment.to_dict(), "record": record.to_dict()})
 
 
 @appointments_bp.get("/api/doctors/<int:doctor_id>/availability")

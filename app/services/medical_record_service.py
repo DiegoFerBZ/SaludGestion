@@ -6,6 +6,24 @@ from app.services.validators import require_fields
 
 class MedicalRecordService:
     @staticmethod
+    def build(data, patient_id, doctor_id):
+        require_fields(data, ["diagnosis", "treatment"])
+        patient = Patient.query.get(patient_id)
+        doctor = Doctor.query.get(doctor_id)
+        if not patient:
+            raise NotFoundError("Paciente no encontrado")
+        if not doctor:
+            raise NotFoundError("Medico no encontrado")
+
+        return MedicalRecord(
+            patient_id=patient.id,
+            doctor_id=doctor.id,
+            diagnosis=data["diagnosis"].strip(),
+            treatment=data["treatment"].strip(),
+            notes=(data.get("notes") or "").strip() or None,
+        )
+
+    @staticmethod
     def create(data):
         require_fields(data, ["patient_id", "doctor_id", "diagnosis", "treatment"])
         patient = Patient.query.get(data["patient_id"])
@@ -22,6 +40,14 @@ class MedicalRecordService:
             treatment=data["treatment"].strip(),
             notes=(data.get("notes") or "").strip() or None,
         )
+        db.session.add(record)
+        db.session.commit()
+        return record
+
+    @staticmethod
+    def create_for_doctor(data, doctor_id):
+        require_fields(data, ["patient_id", "diagnosis", "treatment"])
+        record = MedicalRecordService.build(data, data["patient_id"], doctor_id)
         db.session.add(record)
         db.session.commit()
         return record

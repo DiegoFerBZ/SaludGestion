@@ -41,11 +41,15 @@
             <span class="avatar">{{ appointment.patient.first_name[0] }}{{ appointment.patient.last_name[0] }}</span>
             <div>
                 <strong>{{ appointment.patient.full_name }}</strong>
-                <span>Dr. {{ appointment.doctor.full_name }} · {{ appointment.doctor.specialty }}</span>
+                <span>Dr. {{ appointment.doctor.full_name }} &middot; {{ appointment.doctor.specialty }}</span>
             </div>
         </div>
         <div class="inline">
             <span class="chip {{ 'error' if appointment.status == 'cancelada' else 'success' }}">{{ appointment.status }}</span>
+            <a class="button secondary" href="{{ url_for('appointments.appointment_detail_view', appointment_id=appointment.id) }}">
+                <span class="material-symbols-outlined">{{ "stethoscope" if is_doctor and appointment.status == "programada" else "visibility" }}</span>
+                {{ "Atender" if is_doctor and appointment.status == "programada" else "Ver detalle" }}
+            </a>
             {% if appointment.status == "programada" and not is_doctor %}
             <form method="post" action="{{ url_for('appointments.cancel_appointment_view', appointment_id=appointment.id) }}" class="inline">
                 <input name="reason" placeholder="Motivo">

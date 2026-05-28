@@ -32,14 +32,16 @@ def new_record_view():
 @records_bp.post("/records")
 @view_role_required(Role.MEDICO.value)
 def create_record_view():
-    MedicalRecordService.create(request.form)
+    MedicalRecordService.create_for_doctor(request.form, current_view_user().id)
     return redirect(url_for("records.list_records_view", patient_id=request.form.get("patient_id")))
 
 
 @records_bp.post("/api/records")
 @role_required(Role.MEDICO.value)
 def create_record_api():
-    record = MedicalRecordService.create(request.get_json() or {})
+    from flask_jwt_extended import get_jwt_identity
+
+    record = MedicalRecordService.create_for_doctor(request.get_json() or {}, get_jwt_identity())
     return api_response(True, record.to_dict(), 201)
 
 
