@@ -48,6 +48,26 @@ flask run
 
 Abre `http://127.0.0.1:5000`.
 
+## Docker
+
+Construir imagen:
+
+```powershell
+docker build -t saludgestion .
+```
+
+Ejecutar contenedor:
+
+```powershell
+docker run --rm -p 8000:8000 --env-file .env saludgestion
+```
+
+Antes de usar una base nueva, ejecuta las migraciones apuntando al mismo `DATABASE_URL`:
+
+```powershell
+docker run --rm --env-file .env saludgestion flask db upgrade
+```
+
 ## Usuario inicial
 
 Puedes crear el primer usuario desde `/register` seleccionando rol `recepcionista`. Para crear medicos y consultorios, entra a `/resources`.
