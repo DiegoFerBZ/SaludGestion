@@ -10,6 +10,11 @@ auth_bp = Blueprint("auth", __name__, url_prefix="")
 
 @auth_bp.get("/login")
 def login_view():
+    if session.get("user_id"):
+        user = User.query.get(session.get("user_id"))
+        if user:
+            return redirect(url_for("patients.list_patients_view"))
+        session.clear()
     return render_template("auth/login.html")
 
 
