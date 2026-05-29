@@ -48,6 +48,16 @@ flask run
 
 Abre `http://127.0.0.1:5000`.
 
+## Pruebas y cobertura
+
+La suite usa `pytest` con patron AAA (Arrange, Act, Assert) y `pytest-cov` para medir cobertura.
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest
+```
+
+El comando muestra la cobertura en terminal y genera el reporte navegable en `htmlcov\index.html`.
+
 ## Docker
 
 Construir imagen:

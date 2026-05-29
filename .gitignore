@@ -6,3 +6,5 @@ instance/
 migrations/
 .pytest_cache/
 mock_citas/
+.coverage
+htmlcov/
